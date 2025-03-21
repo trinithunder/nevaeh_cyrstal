@@ -13,6 +13,15 @@ module Nevaeh
         run "mkdir -p lib/generators/themeable/templates/controllers"
         run "mkdir -p lib/generators/themeable/templates/services"
         run "mkdir -p lib/generators/themeable/templates/concerns"
+        run_all_methods
+      end
+      
+      def run_all_methods
+        create_theme_model
+        create_fastlane_service
+        create_fastlane_controller
+        add_routes
+        install_fastlane
       end
 
       def create_theme_model
