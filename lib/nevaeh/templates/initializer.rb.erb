@@ -1,0 +1,10 @@
+# lib/generators/nevaeh_crystal/templates/initializer.rb.erb
+NevaehCrystal::TaskManager.new(
+  NevaehCrystal::SignalService.new,
+  NevaehCrystal::DataService.new,
+  NevaehCrystal::AnalysisService.new,
+  NevaehCrystal::ResponseService.new,
+  NevaehCrystal::BackgroundProcessingService.new,
+  NevaehCrystal::IdeaGenerationService.new,
+  NevaehCrystal::AstrologyService.new
+)
