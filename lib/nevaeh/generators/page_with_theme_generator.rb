@@ -25,13 +25,17 @@ module Nevaeh
       end
       
       def make_model
+        <<-FILE
+        # app/models/theme.rb
         class Theme < ApplicationRecord
           has_many :pages
-  
+
           def apply_styles(content)
             # Apply theme styles to the content
-            "<div class='theme-#{self.name}'>#{content}</div>"
+            "<div class='theme-\#{self.name}'>\#{content}</div>"
           end
+        end
+                FILE
         end
         
         
