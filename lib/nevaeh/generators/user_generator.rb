@@ -11,10 +11,10 @@ module Nevaeh
      private
 
       def check_and_install_devise
-        unless defined?(Devise)
+        #unless defined?(Devise)
           generate "devise:install"
           generate "devise", "User"
-        end
+          #end
       end
 
       def check_and_install_theme_system
