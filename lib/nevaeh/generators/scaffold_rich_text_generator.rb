@@ -13,6 +13,7 @@ module Nevaeh
         update_views
         create_controller
         add_routes_for_json_actions
+        add_api_route
       end
 
       private
@@ -108,6 +109,35 @@ module Nevaeh
 
         inject_into_file "config/routes.rb", route, before: "end"
       end
+      
+      def add_api_route
+        routes_file = 'config/routes.rb'
+
+        # The route to add inside the API namespace
+        new_route = "  get 'routes', to: 'routes#index'"
+
+        # Read the current content of routes.rb
+        routes_content = File.read(routes_file)
+
+        # Check if the route already exists to avoid duplication
+        return puts "Route already exists!" if routes_content.include?(new_route.strip)
+
+        # If namespace :api do ... end exists, insert inside it
+        if routes_content.match?(/namespace :api do/)
+          updated_content = routes_content.gsub(/(namespace :api do\s*)/) do |match|
+            "#{match}\n  #{new_route}"
+          end
+        else
+          # Otherwise, append the whole namespace block at the end
+          updated_content = routes_content.strip + "\n\nnamespace :api do\n#{new_route}\nend\n"
+        end
+
+        # Write back to the routes.rb file
+        File.write(routes_file, updated_content)
+
+        puts "Route added successfully!"
+      end
+      
     end
   end
 end
