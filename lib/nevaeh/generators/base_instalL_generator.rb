@@ -34,7 +34,7 @@ module Nevaeh
       end
       
       def install_blog_system
-        generate "nevaeh:blog"
+        #generate "nevaeh:blog"
       end
       
       def install_media_gallery
