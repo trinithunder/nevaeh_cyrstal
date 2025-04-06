@@ -7,10 +7,11 @@ module Nevaeh
       def install
         say "Starting installation...", :green
 
+        @application_name = ask("What is the name of this application?", :yellow).downcase
+        @secure_pw = ask("What password do you want to secure your application?", :yellow)
+  
         setup_dotenv
         db_choice = ask("Which database do you want to use? (postgresql/mysql/mongodb/redis/sqlite)", :yellow).downcase
-        application_name = ask("What is the name of this application",:yellow).downcase
-        secure_pw = ask("What password do you want to secure your application?",:yellow)
         setup_database(db_choice)
 
         check_and_install_devise
@@ -20,31 +21,60 @@ module Nevaeh
 
         say "Installation complete!", :green
       end
-
+      
+      
       private
       
-      def add_gem(gem_name)
-        run "bundle add #{gem_name}"
+      def add_gem_unless_present(gem_name)
+        gemfile = File.read("Gemfile")
+        if gemfile.include?(%("#{gem_name}")) || gemfile.include?(gem_name)
+          say_status :skip, "#{gem_name} already present in Gemfile", :yellow
+        else
+          run "bundle add #{gem_name}"
+        end
       end
       
 
       def setup_dotenv
         say "Adding dotenv-rails for environment variable management...", :green
-        add_gem("dotenv-rails")
+        add_dotenv
         run "bundle install"
 
         unless File.exist?(Rails.root.join(".env"))
-          create_file ".env", <<-ENV
-    # Database credentials
-    DB_USERNAME=#{application_name}
-    DB_PASSWORD=#{secure_pw}
-    REDIS_URL=redis://localhost:6379/1
+          create_file ".env", <<~ENV
+            # Database credentials
+            DB_USERNAME=#{@application_name}
+            DB_PASSWORD=#{@secure_pw}
+            REDIS_URL=redis://localhost:6379/1
           ENV
         end
 
         say ".env file created! Be sure to add it to .gitignore.", :yellow
       end
+      
 
+
+
+      def add_dotenv
+        gemfile = File.read("Gemfile")
+        unless gemfile.include?("dotenv-rails")
+          add_gem_unless_present("dotenv-rails")
+        else
+          say_status :skip, "dotenv-rails already present in Gemfile", :yellow
+        end
+      end
+
+
+def create_db_creds
+  create_file ".env", <<-ENV
+      # Database credentials
+      DB_USERNAME=#{application_name}
+      DB_PASSWORD=#{secure_pw}
+      REDIS_URL=redis://localhost:6379/1
+            ENV
+
+end
+      
       def setup_database(db_choice)
         case db_choice
         when "postgresql"
@@ -62,7 +92,7 @@ module Nevaeh
 
       def configure_postgresql
         say "Configuring PostgreSQL...", :green
-        add_gem("pg")
+        add_gem_unless_present("pg")
         run "bundle install"
         update_database_yml("postgresql", "pg")
 
@@ -74,7 +104,7 @@ module Nevaeh
       
       def configure_mysql
         say "Configuring MySQL...", :green
-        add_gem("mysql2")
+        add_gem_unless_present("mysql2")
         run "bundle install"
         update_database_yml("mysql2", "mysql2")
 
@@ -87,7 +117,7 @@ module Nevaeh
 
       def configure_mongodb
         say "Configuring MongoDB...", :green
-        add_gem("mongoid")
+        add_gem_unless_present("mongoid")
         run "bundle install"
         run "rails generate mongoid:config"
 
@@ -109,7 +139,7 @@ module Nevaeh
 
       def configure_redis
         say "Configuring Redis...", :green
-        add_gem("redis")
+        add_gem_unless_present("redis")
         run "bundle install"
         create_redis_initializer
       end
@@ -149,7 +179,7 @@ module Nevaeh
 
       def check_and_install_devise
         unless defined?(Devise)
-          add_gem("devise")
+          add_gem_unless_present("devise")
           run "bundle install"
           generate "devise:install"
           generate "devise User role:integer"
@@ -159,7 +189,7 @@ module Nevaeh
       end
 
       def setup_cancancan
-        add_gem("cancancan")
+        add_gem_unless_present("cancancan")
         run "bundle install"
         generate "cancan:ability"
 
@@ -205,7 +235,7 @@ module Nevaeh
       end
       
       def install_blog
-        add_gem("nokogiri")
+        add_gem_unless_present("nokogiri")
         generate "nevaeh:blog"
       end
     end
