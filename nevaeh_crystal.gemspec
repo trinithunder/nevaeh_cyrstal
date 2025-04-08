@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "A powerful gem for crystal-like utilities in Ruby."
   spec.description = "NevaehCrystal provides a collection of useful tools and extensions for Ruby developers."
-  spec.homepage = "https://github.com/trinithunder/nevaeh_cyrstal"
+  spec.homepage = "https://github.com/trinithunder/nevaeh_crystal"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
