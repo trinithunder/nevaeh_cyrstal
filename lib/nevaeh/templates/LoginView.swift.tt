@@ -1,0 +1,62 @@
+import SwiftUI
+
+struct LoginView: View {
+    @State private var email = ""
+    @State private var password = ""
+    @State private var errorMessage: String?
+
+    var body: some View {
+        VStack(spacing: 20) {
+            TextField("Email", text: $email)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+
+            SecureField("Password", text: $password)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            }
+
+            Button("Log In") {
+                login()
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+        .padding()
+    }
+
+    func login() {
+        guard let url = URL(string: "https://yourdomain.com/users/sign_in.json") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = ["user": ["email": email, "password": password]]
+        request.httpBody = try? JSONEncoder().encode(body)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else { return }
+
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let token = json["authentication_token"] as? String {
+                UserDefaults.standard.set(token, forKey: "auth_token")
+            } else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Invalid credentials"
+                }
+            }
+        }.resume()
+    }
+}

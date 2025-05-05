@@ -1,0 +1,23 @@
+class <%= class_name %> {
+<% attributes.each do |attr| -%>
+  final <%= dart_type(attr.type) %> <%= attr.name %>;
+<% end -%>
+
+  <%= class_name %>({
+<% attributes.each do |attr| -%>
+    required this.<%= attr.name %>,
+<% end -%>
+  });
+
+  factory <%= class_name %>.fromJson(Map<String, dynamic> json) => <%= class_name %>(
+<% attributes.each do |attr| -%>
+    <%= attr.name %>: json['<%= attr.name %>'],
+<% end -%>
+  );
+
+  Map<String, dynamic> toJson() => {
+<% attributes.each do |attr| -%>
+    '<%= attr.name %>': <%= attr.name %>,
+<% end -%>
+  };
+}

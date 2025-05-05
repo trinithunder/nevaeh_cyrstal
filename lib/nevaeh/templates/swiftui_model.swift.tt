@@ -1,0 +1,7 @@
+import SwiftUI
+
+struct <%= class_name %>: Identifiable, Codable {
+<% attributes.each do |attr| -%>
+    var <%= attr.name %>: <%= swift_type(attr.type) %>
+<% end -%>
+}

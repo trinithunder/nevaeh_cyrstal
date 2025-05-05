@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+import '../models/<%= file_name %>.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class <%= class_name %>View extends StatefulWidget {
+  @override
+  _<%= class_name %>ViewState createState() => _<%= class_name %>ViewState();
+}
+
+class _<%= class_name %>ViewState extends State<<%= class_name %>View> {
+  List<<%= class_name %>> posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPosts();
+  }
+
+  Future<void> fetchPosts() async {
+    final response = await http.get(Uri.parse('https://yourdomain.com/<%= file_name.pluralize %>.json'));
+    if (response.statusCode == 200) {
+      final List data = json.decode(response.body);
+      setState(() {
+        posts = data.map((e) => <%= class_name %>.fromJson(e)).toList();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('<%= class_name %>s')),
+      body: ListView.builder(
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          final item = posts[index];
+          return ListTile(
+            title: Text(item.title),
+            subtitle: Text(item.content),
+          );
+        },
+      ),
+    );
+  }
+}
